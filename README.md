@@ -98,7 +98,7 @@ AI-Interview-Assistant/
 ## Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/ManojVeturi/AI-Interview-Assistant.git>
 cd AI-Interview-Assistant
 ```
 
@@ -249,7 +249,7 @@ This project demonstrates:
 
 **Manoj Veturi**
 
-- GitHub: https://github.com/your-username
+- GitHub: https://github.com/ManojVeturi
 
 ---
 
