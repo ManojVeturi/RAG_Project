@@ -3,8 +3,9 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 from jose import jwt
 
+from app.config import settings
 
-SECRET_KEY = "change-this-secret-key"
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -58,6 +59,6 @@ def create_access_token(
 
     return jwt.encode(
         payload,
-        SECRET_KEY,
+        settings.SECRET_KEY,
         algorithm=ALGORITHM
     )
