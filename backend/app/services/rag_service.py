@@ -71,8 +71,10 @@ Content:
             "page_number": metadata["page_number"],
         })
 
-        return {
-            "answer": answer,
-            "sources": sources,
-            "can_create_ticket": False,
-        }
+    # IMPORTANT:
+    # Return AFTER processing all sources
+    return {
+        "answer": answer,
+        "sources": sources,
+        "can_create_ticket": False,
+    }

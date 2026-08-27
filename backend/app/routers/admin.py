@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.auth import hash_password
 from app.database import get_db
 from app.dependencies import require_admin
-from app.models import User
+from app.models import User, Ticket, Conversation
 from app.schemas import AdminUserCreate, UserResponse
 
 
@@ -110,3 +110,30 @@ def list_users(
         .order_by(User.id.desc())
         .all()
     )
+
+@router.get("/stats")
+def admin_stats(
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    employee_count = (
+        db.query(User)
+        .filter(User.role == "employee")
+        .count()
+    )
+
+    ticket_count = (
+        db.query(Ticket)
+        .count()
+    )
+
+    conversation_count = (
+        db.query(Conversation)
+        .count()
+    )
+
+    return {
+        "employees": employee_count,
+        "tickets": ticket_count,
+        "conversations": conversation_count,
+    }

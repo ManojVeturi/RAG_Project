@@ -54,7 +54,7 @@ const adminLinks = [
     icon: FileText,
   },
   {
-    to: "/tickets",
+    to: "/admin/tickets",
     label: "Tickets",
     icon: Ticket,
   },

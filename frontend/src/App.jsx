@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider } from "./context/AuthContext";
-import { Outlet } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AppLayout from "./components/AppLayout";
@@ -20,7 +19,7 @@ import Tickets from "./pages/Tickets";
 import Documents from "./pages/Documents";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserManagement from "./pages/UserManagement";
-
+import AdminTickets from "./pages/AdminTickets";
 
 export default function App() {
   return (
@@ -29,7 +28,7 @@ export default function App() {
         <Routes>
 
           {/* =========================
-              PUBLIC PAGES
+              PUBLIC
           ========================== */}
 
           <Route
@@ -54,9 +53,15 @@ export default function App() {
               </ProtectedRoute>
             }
           >
+
+            {/* Employee pages */}
             <Route
               path="/dashboard"
-              element={<Dashboard />}
+              element={
+                <ProtectedRoute allowedRoles={["employee"]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
             />
 
             <Route
@@ -66,36 +71,61 @@ export default function App() {
 
             <Route
               path="/history"
-              element={<History />}
+              element={
+                <ProtectedRoute allowedRoles={["employee"]}>
+                  <History />
+                </ProtectedRoute>
+              }
             />
 
             <Route
               path="/tickets"
-              element={<Tickets />}
+              element={
+                <ProtectedRoute allowedRoles={["employee"]}>
+                  <Tickets />
+                </ProtectedRoute>
+              }
+            />
+
+
+            {/* Admin pages */}
+
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
             />
 
             <Route
+              path="/admin/users"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <Outlet />
+                  <UserManagement />
                 </ProtectedRoute>
               }
-            >
-              <Route
-                path="/admin"
-                element={<AdminDashboard />}
-              />
+            />
 
-              <Route
-                path="/admin/users"
-                element={<UserManagement />}
-              />
+            <Route
+              path="/admin/tickets"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminTickets />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/documents"
-                element={<Documents />}
-              />
-            </Route>
+            <Route
+              path="/documents"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Documents />
+                </ProtectedRoute>
+              }
+            />
+
           </Route>
 
 

@@ -19,6 +19,21 @@ def retrieve(
     metadatas = results.get("metadatas", [[]])[0]
     distances = results.get("distances", [[]])[0]
 
+    print(
+        f"RAG query: {query}"
+    )
+
+    for document, metadata, distance in zip(
+        documents,
+        metadatas,
+        distances,
+    ):
+        print(
+            f"Distance: {distance:.4f} | "
+            f"File: {metadata.get('filename')} | "
+            f"Page: {metadata.get('page_number')}"
+        )
+
     retrieved_chunks = []
 
     for document, metadata, distance in zip(
@@ -26,16 +41,14 @@ def retrieve(
         metadatas,
         distances,
     ):
+        # Reject weak matches individually
+        if distance > distance_threshold:
+            continue
+
         retrieved_chunks.append({
             "text": document,
             "metadata": metadata,
             "distance": distance,
         })
-
-    if not retrieved_chunks:
-        return []
-
-    if retrieved_chunks[0]["distance"] > distance_threshold:
-        return []
 
     return retrieved_chunks

@@ -68,7 +68,6 @@ def list_tickets(
 
 @router.get(
     "/admin/all",
-    response_model=list[TicketResponse],
 )
 def list_all_tickets(
     current_user: User = Depends(require_admin),
@@ -80,7 +79,23 @@ def list_all_tickets(
         .all()
     )
 
-    return tickets
+    return [
+        {
+            "id": ticket.id,
+            "user_id": ticket.user_id,
+            "user_name": ticket.user.name,
+            "user_email": ticket.user.email,
+            "title": ticket.title,
+            "description": ticket.description,
+            "category": ticket.category,
+            "priority": ticket.priority,
+            "status": ticket.status,
+            "ai_summary": ticket.ai_summary,
+            "created_at": ticket.created_at,
+            "updated_at": ticket.updated_at,
+        }
+        for ticket in tickets
+    ]
 
 @router.patch(
     "/{ticket_id}",

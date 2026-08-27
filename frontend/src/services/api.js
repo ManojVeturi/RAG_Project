@@ -11,21 +11,35 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
-    if (token) {
+    // Don't attach an old token to login/register requests
+    const isAuthRequest =
+      config.url === "/auth/login" ||
+      config.url === "/auth/register";
+
+    if (token && !isAuthRequest) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only clear authentication when an authenticated
+    // request fails, not when login itself returns 401.
+    const requestUrl = error.config?.url;
+
+    const isAuthRequest =
+      requestUrl === "/auth/login" ||
+      requestUrl === "/auth/register";
+
+    if (
+      error.response?.status === 401 &&
+      !isAuthRequest
+    ) {
       localStorage.removeItem("token");
     }
 
