@@ -7,6 +7,11 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
 
+class AdminUserCreate(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -18,7 +23,6 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     role: str
-
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta, timezone
 
-import bcrypt
-from jose import jwt
-
 from app.config import settings
+
+import bcrypt
+
+from jose import jwt
 
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def hash_password(password: str) -> str:
@@ -59,6 +61,6 @@ def create_access_token(
 
     return jwt.encode(
         payload,
-        settings.SECRET_KEY,
+        settings.secret_key,
         algorithm=ALGORITHM
     )
