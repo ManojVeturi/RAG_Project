@@ -1,4 +1,6 @@
 print("=== APP MAIN IMPORT STARTED ===", flush=True)
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,13 +14,17 @@ from app.routers.chat import router as chat_router
 from app.routers.tickets import router as tickets_router
 
 
-Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
 
 
 app = FastAPI(
     title="AI Enterprise Support & Knowledge Agent",
     description="AI-powered enterprise support and knowledge management system",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 

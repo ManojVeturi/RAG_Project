@@ -20,7 +20,15 @@ client = QdrantClient(
 )
 
 
+_initialized = False
+
+
 def _ensure_collection():
+    global _initialized
+
+    if _initialized:
+        return
+
     collections = client.get_collections()
 
     existing_names = {
@@ -50,8 +58,7 @@ def _ensure_collection():
         field_schema="integer",
     )
 
-
-_ensure_collection()
+    _initialized = True
 
 
 def add_documents(
@@ -60,6 +67,8 @@ def add_documents(
     embeddings: list[list[float]],
     metadatas: list[dict],
 ):
+    _ensure_collection()
+
     points = []
 
     for id_, text, embedding, metadata in zip(
@@ -90,6 +99,8 @@ def search_documents(
     top_k: int = 5,
     company_id: int | None = None,
 ):
+    _ensure_collection()
+
     query_filter = None
 
     if company_id is not None:
@@ -143,6 +154,8 @@ def search_documents(
 def delete_document(
     document_id: int,
 ):
+    _ensure_collection()
+
     client.delete(
         collection_name=COLLECTION_NAME,
         points_selector=Filter(
