@@ -24,10 +24,12 @@ def ask_question(
     db: Session = Depends(get_db),
 ):
     result = answer_question(
-        question=request.question
+        question=request.question,
+        company_id=current_user.company_id,
     )
 
     conversation = Conversation(
+        company_id=current_user.company_id,
         user_id=current_user.id,
         question=request.question,
         answer=result["answer"],
@@ -48,7 +50,8 @@ def get_chat_history(
     conversations = (
         db.query(Conversation)
         .filter(
-            Conversation.user_id == current_user.id
+            Conversation.company_id == current_user.company_id,
+            Conversation.user_id == current_user.id,
         )
         .order_by(
             Conversation.created_at.desc()

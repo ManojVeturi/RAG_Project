@@ -4,6 +4,7 @@ from app.services.llm_service import generate_answer
 
 def answer_question(
     question: str,
+    company_id: int,
     top_k: int = 5,
 ) -> dict:
 
@@ -11,6 +12,7 @@ def answer_question(
         query=question,
         top_k=top_k,
         distance_threshold=1.2,
+        company_id=company_id,
     )
 
     # No relevant information found
@@ -18,7 +20,7 @@ def answer_question(
         return {
             "answer": (
                 "I couldn't find this information "
-                "in the company knowledge base."
+                "in your company's knowledge base."
             ),
             "sources": [],
             "can_create_ticket": True,
@@ -40,7 +42,9 @@ Content:
 """
         )
 
-    context = "\n\n".join(context_parts)
+    context = "\n\n".join(
+        context_parts
+    )
 
     # Generate grounded answer
     answer = generate_answer(
@@ -71,8 +75,6 @@ Content:
             "page_number": metadata["page_number"],
         })
 
-    # IMPORTANT:
-    # Return AFTER processing all sources
     return {
         "answer": answer,
         "sources": sources,

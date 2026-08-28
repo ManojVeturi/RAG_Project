@@ -10,17 +10,16 @@ import {
 
 import api from "../services/api";
 
-
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     employees: 0,
     tickets: 0,
     conversations: 0,
+    documents: 0,
   });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
 
   const loadStats = async () => {
     try {
@@ -49,16 +48,14 @@ export default function AdminDashboard() {
     }
   };
 
-
   useEffect(() => {
     loadStats();
   }, []);
 
-
   const statCards = [
     {
       label: "Knowledge Documents",
-      value: "—",
+      value: stats.documents,
       icon: FileText,
     },
     {
@@ -78,25 +75,21 @@ export default function AdminDashboard() {
     },
   ];
 
-
   return (
     <div className="mx-auto max-w-6xl">
 
       {/* Header */}
-
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">
             Admin Dashboard
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
-            Manage your enterprise knowledge and support
-            operations.
+            Manage your company's knowledge,
+            employees, and support operations.
           </p>
         </div>
-
 
         <button
           type="button"
@@ -115,25 +108,18 @@ export default function AdminDashboard() {
 
           Refresh
         </button>
-
       </div>
 
-
       {/* Error */}
-
       {error && (
         <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-
       {/* Statistics */}
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
         {statCards.map((stat) => {
-
           const Icon = stat.icon;
 
           return (
@@ -141,11 +127,8 @@ export default function AdminDashboard() {
               key={stat.label}
               className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
             >
-
               <div className="flex items-center justify-between">
-
                 <div>
-
                   <p className="text-sm text-slate-500">
                     {stat.label}
                   </p>
@@ -155,38 +138,28 @@ export default function AdminDashboard() {
                       ? "..."
                       : stat.value}
                   </p>
-
                 </div>
-
 
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                   <Icon size={20} />
                 </div>
-
               </div>
-
             </div>
           );
-
         })}
-
       </div>
 
-
       {/* Administration */}
-
       <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-
         <h2 className="font-medium text-slate-900">
           Administration
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          Use the navigation menu to manage documents,
-          support tickets, users, and the enterprise
-          knowledge base.
+          Manage your company's employees, support
+          tickets, documents, and AI knowledge base
+          using the navigation menu.
         </p>
-
       </div>
 
     </div>

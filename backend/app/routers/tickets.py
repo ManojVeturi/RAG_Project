@@ -34,6 +34,7 @@ def create_ticket(
     )
 
     ticket = Ticket(
+        company_id=current_user.company_id,
         user_id=current_user.id,
         title=request.title,
         description=request.description,
@@ -49,6 +50,7 @@ def create_ticket(
 
     return ticket
 
+
 @router.get(
     "/",
     response_model=list[TicketResponse],
@@ -59,12 +61,18 @@ def list_tickets(
 ):
     tickets = (
         db.query(Ticket)
-        .filter(Ticket.user_id == current_user.id)
-        .order_by(Ticket.created_at.desc())
+        .filter(
+            Ticket.company_id == current_user.company_id,
+            Ticket.user_id == current_user.id,
+        )
+        .order_by(
+            Ticket.created_at.desc()
+        )
         .all()
     )
 
     return tickets
+
 
 @router.get(
     "/admin/all",
@@ -74,8 +82,14 @@ def list_all_tickets(
     db: Session = Depends(get_db),
 ):
     tickets = (
-        db.query(Ticket)
-        .order_by(Ticket.created_at.desc())
+        db.query(Ticket, User)
+        .join(User, Ticket.user_id == User.id)
+        .filter(
+            Ticket.company_id == current_user.company_id
+        )
+        .order_by(
+            Ticket.created_at.desc()
+        )
         .all()
     )
 
@@ -83,8 +97,8 @@ def list_all_tickets(
         {
             "id": ticket.id,
             "user_id": ticket.user_id,
-            "user_name": ticket.user.name,
-            "user_email": ticket.user.email,
+            "user_name": user.name,
+            "user_email": user.email,
             "title": ticket.title,
             "description": ticket.description,
             "category": ticket.category,
@@ -94,8 +108,9 @@ def list_all_tickets(
             "created_at": ticket.created_at,
             "updated_at": ticket.updated_at,
         }
-        for ticket in tickets
+        for ticket, user in tickets
     ]
+
 
 @router.patch(
     "/{ticket_id}",
@@ -109,7 +124,10 @@ def update_ticket(
 ):
     ticket = (
         db.query(Ticket)
-        .filter(Ticket.id == ticket_id)
+        .filter(
+            Ticket.id == ticket_id,
+            Ticket.company_id == current_user.company_id,
+        )
         .first()
     )
 

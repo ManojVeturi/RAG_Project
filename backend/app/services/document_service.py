@@ -8,6 +8,7 @@ def ingest_document(
     document_id: int,
     file_path: str,
     filename: str,
+    company_id: int,
 ):
     # 1. Parse document
     pages = parse_pdf(file_path)
@@ -39,6 +40,7 @@ def ingest_document(
     metadatas = [
         {
             "document_id": document_id,
+            "company_id": company_id,
             "filename": filename,
             "page_number": chunk["page_number"],
             "chunk_index": chunk["chunk_index"],

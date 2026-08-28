@@ -69,13 +69,15 @@ const adminLinks = [
 export default function Sidebar({ open, onClose }) {
   const { user } = useAuth();
 
-  const links =
-    user?.role === "admin"
-      ? adminLinks
-      : employeeLinks;
+  const isAdmin = user?.role === "admin";
+
+  const links = isAdmin
+    ? adminLinks
+    : employeeLinks;
 
   return (
     <>
+      {/* Mobile overlay */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/20 lg:hidden"
@@ -92,7 +94,10 @@ export default function Sidebar({ open, onClose }) {
           ${open ? "translate-x-0" : "-translate-x-full"}
         `}
       >
+
+        {/* Brand */}
         <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
+
           <div>
             <p className="text-sm font-semibold text-slate-900">
               Enterprise AI
@@ -107,12 +112,17 @@ export default function Sidebar({ open, onClose }) {
             type="button"
             onClick={onClose}
             className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 lg:hidden"
+            aria-label="Close navigation"
           >
             <X size={18} />
           </button>
+
         </div>
 
+
+        {/* Navigation */}
         <nav className="space-y-1 p-3">
+
           {links.map((link) => {
             const Icon = link.icon;
 
@@ -134,7 +144,39 @@ export default function Sidebar({ open, onClose }) {
               </NavLink>
             );
           })}
+
         </nav>
+
+
+        {/* Current user */}
+        {user && (
+          <div className="absolute bottom-0 left-0 right-0 border-t border-slate-200 p-4">
+
+            <div className="min-w-0">
+
+              <p className="truncate text-sm font-medium text-slate-900">
+                {user.name}
+              </p>
+
+              <p className="truncate text-xs text-slate-500">
+                {user.email}
+              </p>
+
+              <span
+                className={`mt-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                  isAdmin
+                    ? "bg-slate-100 text-slate-700"
+                    : "bg-blue-50 text-blue-700"
+                }`}
+              >
+                {isAdmin ? "Administrator" : "Employee"}
+              </span>
+
+            </div>
+
+          </div>
+        )}
+
       </aside>
     </>
   );

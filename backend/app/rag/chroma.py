@@ -3,6 +3,7 @@ import chromadb
 
 CHROMA_PATH = "./chroma_db"
 
+
 client = chromadb.PersistentClient(
     path=CHROMA_PATH
 )
@@ -30,13 +31,26 @@ def add_documents(
 def search_documents(
     query_embedding: list[float],
     top_k: int = 5,
+    company_id: int | None = None,
 ):
+    query_kwargs = {
+        "query_embeddings": [query_embedding],
+        "n_results": top_k,
+    }
+
+    if company_id is not None:
+        query_kwargs["where"] = {
+            "company_id": company_id
+        }
+
     return collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_k,
+        **query_kwargs
     )
 
-def delete_document(document_id: int):
+
+def delete_document(
+    document_id: int,
+):
     collection.delete(
         where={
             "document_id": document_id

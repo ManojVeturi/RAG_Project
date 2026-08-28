@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Shield, UserPlus, Users } from "lucide-react";
+import { UserPlus, Users } from "lucide-react";
 
 import api from "../services/api";
 
@@ -8,7 +8,6 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
-  const [role, setRole] = useState("employee");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,11 +18,14 @@ export default function UserManagement() {
   const loadUsers = async () => {
     try {
       setLoading(true);
+      setError("");
 
       const response = await api.get("/admin/users");
 
       setUsers(response.data);
     } catch (error) {
+      console.error("Failed to load users:", error);
+
       const detail = error.response?.data?.detail;
 
       setError(
@@ -61,12 +63,7 @@ export default function UserManagement() {
     setCreating(true);
 
     try {
-      const endpoint =
-        role === "admin"
-          ? "/admin/users/admin"
-          : "/admin/users/employee";
-
-      await api.post(endpoint, {
+      await api.post("/admin/users/employee", {
         name: name.trim(),
         email: email.trim(),
         password,
@@ -77,21 +74,34 @@ export default function UserManagement() {
       setPassword("");
 
       setSuccess(
-        `${role === "admin" ? "Admin" : "Employee"} created successfully.`
+        "Employee created successfully."
       );
 
       await loadUsers();
     } catch (error) {
+      console.error("Failed to create employee:", error);
+
       const detail = error.response?.data?.detail;
 
-      let message = "Unable to create user.";
+      let message = "Unable to create employee.";
 
       if (typeof detail === "string") {
         message = detail;
       } else if (Array.isArray(detail)) {
         message = detail
-          .map((item) => item?.msg || "Invalid input.")
+          .map(
+            (item) =>
+              item?.msg || "Invalid input."
+          )
           .join(", ");
+      } else if (
+        detail &&
+        typeof detail === "object"
+      ) {
+        message =
+          detail.msg ||
+          detail.message ||
+          message;
       }
 
       setError(message);
@@ -102,22 +112,26 @@ export default function UserManagement() {
 
   return (
     <div className="mx-auto max-w-6xl">
+
+      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-slate-900">
           User Management
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          Manage employee and administrator accounts.
+          Manage employees in your company.
         </p>
       </div>
 
+      {/* Error */}
       {error && (
         <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
+      {/* Success */}
       {success && (
         <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
           {success}
@@ -125,8 +139,10 @@ export default function UserManagement() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        {/* Create user */}
+
+        {/* Create Employee */}
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
               <UserPlus size={20} />
@@ -134,11 +150,11 @@ export default function UserManagement() {
 
             <div>
               <h2 className="font-semibold text-slate-900">
-                Create User
+                Add Employee
               </h2>
 
               <p className="text-xs text-slate-500">
-                Add an employee or administrator
+                Add an employee to your company
               </p>
             </div>
           </div>
@@ -147,35 +163,18 @@ export default function UserManagement() {
             onSubmit={handleCreate}
             className="space-y-4"
           >
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Account type
-              </label>
 
-              <select
-                value={role}
-                onChange={(event) =>
-                  setRole(event.target.value)
-                }
-                disabled={creating}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            {/* Name */}
+            <div>
+              <label
+                htmlFor="employee-name"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
               >
-                <option value="employee">
-                  Employee
-                </option>
-
-                <option value="admin">
-                  Administrator
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Full name
               </label>
 
               <input
+                id="employee-name"
                 type="text"
                 value={name}
                 onChange={(event) =>
@@ -183,16 +182,21 @@ export default function UserManagement() {
                 }
                 placeholder="John Doe"
                 disabled={creating}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
               />
             </div>
 
+            {/* Email */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label
+                htmlFor="employee-email"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
                 Email
               </label>
 
               <input
+                id="employee-email"
                 type="email"
                 value={email}
                 onChange={(event) =>
@@ -200,16 +204,21 @@ export default function UserManagement() {
                 }
                 placeholder="john@company.com"
                 disabled={creating}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Password
+              <label
+                htmlFor="employee-password"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Temporary password
               </label>
 
               <input
+                id="employee-password"
                 type="password"
                 value={password}
                 onChange={(event) =>
@@ -217,7 +226,7 @@ export default function UserManagement() {
                 }
                 placeholder="Minimum 8 characters"
                 disabled={creating}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
               />
             </div>
 
@@ -228,86 +237,90 @@ export default function UserManagement() {
             >
               {creating
                 ? "Creating..."
-                : `Create ${
-                    role === "admin"
-                      ? "Administrator"
-                      : "Employee"
-                  }`}
+                : "Create Employee"}
             </button>
+
           </form>
         </div>
 
         {/* Users */}
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+
           <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+
             <div className="flex items-center gap-3">
+
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
                 <Users size={20} />
               </div>
 
               <div>
                 <h2 className="font-semibold text-slate-900">
-                  Users
+                  Company Employees
                 </h2>
 
                 <p className="text-xs text-slate-500">
-                  {users.length} account
-                  {users.length !== 1 ? "s" : ""}
+                  {users.filter(
+                    (user) => user.role === "employee"
+                  ).length}{" "}
+                  employee
+                  {users.filter(
+                    (user) => user.role === "employee"
+                  ).length !== 1
+                    ? "s"
+                    : ""}
                 </p>
               </div>
+
             </div>
+
           </div>
 
           {loading ? (
             <div className="p-8 text-center text-sm text-slate-500">
-              Loading users...
+              Loading employees...
             </div>
-          ) : users.length === 0 ? (
+          ) : users.filter(
+              (user) => user.role === "employee"
+            ).length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-500">
-              No users found.
+              No employees found.
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between gap-4 px-6 py-4"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-900">
-                      {user.name}
-                    </p>
 
-                    <p className="truncate text-xs text-slate-500">
-                      {user.email}
-                    </p>
-                  </div>
+              {users
+                .filter(
+                  (user) => user.role === "employee"
+                )
+                .map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between gap-4 px-6 py-4"
+                  >
 
-                  <div className="flex shrink-0 items-center gap-2">
-                    {user.role === "admin" ? (
-                      <Shield
-                        size={15}
-                        className="text-slate-500"
-                      />
-                    ) : null}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-slate-900">
+                        {user.name}
+                      </p>
 
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        user.role === "admin"
-                          ? "bg-slate-100 text-slate-700"
-                          : "bg-blue-50 text-blue-700"
-                      }`}
-                    >
-                      {user.role === "admin"
-                        ? "Admin"
-                        : "Employee"}
+                      <p className="truncate text-xs text-slate-500">
+                        {user.email}
+                      </p>
+                    </div>
+
+                    <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                      Employee
                     </span>
+
                   </div>
-                </div>
-              ))}
+                ))}
+
             </div>
           )}
+
         </div>
+
       </div>
     </div>
   );

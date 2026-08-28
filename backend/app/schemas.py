@@ -4,6 +4,7 @@ from datetime import datetime
 
 class UserRegister(BaseModel):
     name: str
+    company_code: str
     email: EmailStr
     password: str
 
@@ -23,7 +24,11 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     role: str
-    model_config = ConfigDict(from_attributes=True)
+    company_id: int
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
 
 
 class Token(BaseModel):

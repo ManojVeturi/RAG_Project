@@ -7,6 +7,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [companyCode, setCompanyCode] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] =
@@ -22,7 +23,12 @@ export default function Register() {
     setError("");
     setSuccess("");
 
-    if (!name.trim() || !email.trim() || !password) {
+    if (
+      !name.trim() ||
+      !companyCode.trim() ||
+      !email.trim() ||
+      !password
+    ) {
       setError(
         "Please fill in all required fields."
       );
@@ -46,6 +52,7 @@ export default function Register() {
     try {
       await api.post("/auth/register", {
         name: name.trim(),
+        company_code: companyCode.trim(),
         email: email.trim(),
         password,
       });
@@ -107,12 +114,11 @@ export default function Register() {
 
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-slate-900">
-              Create account
+              Create employee account
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Create an employee account to access
-              the enterprise workspace.
+              Join your company's enterprise workspace.
             </p>
           </div>
 
@@ -133,6 +139,7 @@ export default function Register() {
             className="space-y-5"
           >
 
+            {/* Name */}
             <div>
               <label
                 htmlFor="name"
@@ -155,6 +162,35 @@ export default function Register() {
               />
             </div>
 
+            {/* Company Code */}
+            <div>
+              <label
+                htmlFor="companyCode"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Company Registration Code
+              </label>
+
+              <input
+                id="companyCode"
+                type="text"
+                value={companyCode}
+                onChange={(event) =>
+                  setCompanyCode(event.target.value)
+                }
+                placeholder="e.g. ACME-X7K29P"
+                autoComplete="off"
+                disabled={loading}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm uppercase text-slate-900 outline-none placeholder:text-slate-400 placeholder:normal-case focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
+              />
+
+              <p className="mt-1.5 text-xs leading-5 text-slate-500">
+                Ask your company administrator for the
+                registration code.
+              </p>
+            </div>
+
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -177,6 +213,7 @@ export default function Register() {
               />
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -199,6 +236,7 @@ export default function Register() {
               />
             </div>
 
+            {/* Confirm password */}
             <div>
               <label
                 htmlFor="confirmPassword"

@@ -11,10 +11,14 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies import get_current_user,require_admin
+from app.dependencies import (
+    get_current_user,
+    require_admin,
+)
 from app.models import Document, User
 from app.services.document_service import ingest_document
-from app.rag.chroma import delete_document
+from app.rag.chroma import delete_document as delete_chroma_document
+
 
 router = APIRouter(
     prefix="/documents",
@@ -32,7 +36,10 @@ ALLOWED_EXTENSIONS = {
 }
 
 
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(
+    UPLOAD_DIR,
+    exist_ok=True,
+)
 
 
 @router.post(
@@ -68,6 +75,7 @@ def upload_document(
         buffer.write(file.file.read())
 
     document = Document(
+        company_id=current_user.company_id,
         filename=filename,
         file_type=extension,
         file_path=file_path,
@@ -84,13 +92,16 @@ def upload_document(
             document_id=document.id,
             file_path=file_path,
             filename=filename,
+            company_id=current_user.company_id,
         )
 
         document.status = "processed"
+
         db.commit()
 
     except Exception as exc:
         document.status = "failed"
+
         db.commit()
 
         raise HTTPException(
@@ -107,6 +118,7 @@ def upload_document(
         "chunks": ingestion_result["chunks"],
     }
 
+
 @router.get("/")
 def list_documents(
     current_user: User = Depends(get_current_user),
@@ -114,7 +126,12 @@ def list_documents(
 ):
     documents = (
         db.query(Document)
-        .order_by(Document.created_at.desc())
+        .filter(
+            Document.company_id == current_user.company_id
+        )
+        .order_by(
+            Document.created_at.desc()
+        )
         .all()
     )
 
@@ -130,6 +147,7 @@ def list_documents(
         for document in documents
     ]
 
+
 @router.delete("/{document_id}")
 def delete_document_endpoint(
     document_id: int,
@@ -138,7 +156,10 @@ def delete_document_endpoint(
 ):
     document = (
         db.query(Document)
-        .filter(Document.id == document_id)
+        .filter(
+            Document.id == document_id,
+            Document.company_id == current_user.company_id,
+        )
         .first()
     )
 
@@ -148,14 +169,13 @@ def delete_document_endpoint(
             detail="Document not found",
         )
 
-    # Delete vectors from ChromaDB
-    delete_document(document.id)
+    delete_chroma_document(
+        document.id
+    )
 
-    # Delete physical file
     if os.path.exists(document.file_path):
         os.remove(document.file_path)
 
-    # Delete database record
     db.delete(document)
     db.commit()
 

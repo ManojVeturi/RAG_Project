@@ -2,6 +2,7 @@ from sqlalchemy.sql import func
 from sqlalchemy import (
     Column,
     DateTime,
+    ForeignKey,
     Integer,
     String,
     Text,
@@ -9,68 +10,126 @@ from sqlalchemy import (
 from app.database import Base
 
 
+class Company(Base):
+    __tablename__ = "companies"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    name = Column(
+        String(255),
+        nullable=False,
+    )
+
+    registration_code = Column(
+        String(50),
+        unique=True,
+        index=True,
+        nullable=False,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
 
-    name = Column(String, nullable=False)
+    company_id = Column(
+        Integer,
+        ForeignKey("companies.id"),
+        nullable=False,
+        index=True,
+    )
+
+    name = Column(
+        String,
+        nullable=False,
+    )
 
     email = Column(
         String,
         unique=True,
         index=True,
-        nullable=False
+        nullable=False,
     )
 
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(
+        String,
+        nullable=False,
+    )
 
     role = Column(
         String,
         default="employee",
-        nullable=False
+        nullable=False,
     )
 
     created_at = Column(
         DateTime(timezone=True),
-        server_default=func.now()
+        server_default=func.now(),
     )
+
 
 class Document(Base):
     __tablename__ = "documents"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    company_id = Column(
+        Integer,
+        ForeignKey("companies.id"),
+        nullable=False,
+        index=True,
+    )
 
     filename = Column(
         String,
-        nullable=False
+        nullable=False,
     )
 
     file_type = Column(
         String,
-        nullable=False
+        nullable=False,
     )
 
     file_path = Column(
         String,
-        nullable=False
+        nullable=False,
     )
 
     uploaded_by = Column(
         Integer,
-        nullable=False
+        ForeignKey("users.id"),
+        nullable=False,
     )
 
     status = Column(
         String,
         default="processed",
-        nullable=False
+        nullable=False,
     )
 
     created_at = Column(
         DateTime(timezone=True),
-        server_default=func.now()
+        server_default=func.now(),
     )
+
 
 class Conversation(Base):
     __tablename__ = "conversations"
@@ -81,8 +140,16 @@ class Conversation(Base):
         index=True,
     )
 
+    company_id = Column(
+        Integer,
+        ForeignKey("companies.id"),
+        nullable=False,
+        index=True,
+    )
+
     user_id = Column(
         Integer,
+        ForeignKey("users.id"),
         nullable=False,
         index=True,
     )
@@ -102,6 +169,7 @@ class Conversation(Base):
         server_default=func.now(),
     )
 
+
 class Ticket(Base):
     __tablename__ = "tickets"
 
@@ -111,8 +179,16 @@ class Ticket(Base):
         index=True,
     )
 
+    company_id = Column(
+        Integer,
+        ForeignKey("companies.id"),
+        nullable=False,
+        index=True,
+    )
+
     user_id = Column(
         Integer,
+        ForeignKey("users.id"),
         nullable=False,
         index=True,
     )

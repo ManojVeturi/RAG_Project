@@ -7,7 +7,7 @@ from app.auth import (
     verify_password,
 )
 from app.database import get_db
-from app.models import User
+from app.models import Company, User
 from app.schemas import (
     LoginRequest,
     Token,
@@ -24,12 +24,13 @@ router = APIRouter(
 @router.post(
     "/register",
     response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 def register(
     user_data: UserRegister,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
+    # Check whether email already exists
     existing_user = (
         db.query(User)
         .filter(User.email == user_data.email)
@@ -39,14 +40,34 @@ def register(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            detail="Email already registered",
         )
 
+    # Find company using registration code
+    company = (
+        db.query(Company)
+        .filter(
+            Company.registration_code
+            == user_data.company_code.strip()
+        )
+        .first()
+    )
+
+    if company is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid company registration code",
+        )
+
+    # Create employee
     user = User(
-        name=user_data.name,
+        company_id=company.id,
+        name=user_data.name.strip(),
         email=user_data.email,
-        password_hash=hash_password(user_data.password),
-        role="employee"
+        password_hash=hash_password(
+            user_data.password
+        ),
+        role="employee",
     )
 
     db.add(user)
