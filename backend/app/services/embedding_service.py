@@ -1,6 +1,3 @@
-from sentence_transformers import SentenceTransformer
-
-
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 _model = None
@@ -11,6 +8,8 @@ def get_model():
 
     if _model is None:
         print("Loading embedding model...", flush=True)
+
+        from sentence_transformers import SentenceTransformer
 
         _model = SentenceTransformer(MODEL_NAME)
 
