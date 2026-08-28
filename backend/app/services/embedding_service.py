@@ -3,8 +3,16 @@ from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
+_model = None
 
-model = SentenceTransformer(MODEL_NAME)
+
+def get_model():
+    global _model
+
+    if _model is None:
+        _model = SentenceTransformer(MODEL_NAME)
+
+    return _model
 
 
 def generate_embeddings(
@@ -13,6 +21,8 @@ def generate_embeddings(
     """
     Generate vector embeddings for a list of texts.
     """
+
+    model = get_model()
 
     embeddings = model.encode(
         texts,

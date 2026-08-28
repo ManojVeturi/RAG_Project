@@ -48,7 +48,7 @@ def home():
 
 
 @app.get("/health")
-def health_check():
+def health():
     return {
-        "status": "healthy"
+        "status": "ok"
     }
