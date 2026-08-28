@@ -1,3 +1,4 @@
+print("=== APP MAIN IMPORT STARTED ===", flush=True)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
