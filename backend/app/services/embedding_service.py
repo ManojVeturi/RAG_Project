@@ -10,7 +10,11 @@ def get_model():
     global _model
 
     if _model is None:
+        print("Loading embedding model...", flush=True)
+
         _model = SentenceTransformer(MODEL_NAME)
+
+        print("Embedding model loaded.", flush=True)
 
     return _model
 
