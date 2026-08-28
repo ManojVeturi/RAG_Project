@@ -3,12 +3,20 @@ from google import genai
 from app.config import settings
 
 
-client = genai.Client(
-    api_key=settings.gemini_api_key
-)
-
+_client = None
 
 MODEL_NAME = "gemini-3.6-flash"
+
+
+def get_client():
+    global _client
+
+    if _client is None:
+        _client = genai.Client(
+            api_key=settings.gemini_api_key
+        )
+
+    return _client
 
 
 def generate_answer(
@@ -38,7 +46,7 @@ USER QUESTION:
 {question}
 """
 
-    response = client.models.generate_content(
+    response = get_client().models.generate_content(
         model=MODEL_NAME,
         contents=prompt,
     )
@@ -46,7 +54,7 @@ USER QUESTION:
     return response.text
 
 def generate_text(prompt: str) -> str:
-    response = client.models.generate_content(
+    response = get_client().models.generate_content(
         model=MODEL_NAME,
         contents=prompt,
     )

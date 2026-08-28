@@ -14,13 +14,21 @@ from app.config import settings
 COLLECTION_NAME = settings.qdrant_collection
 
 
-client = QdrantClient(
-    url=settings.qdrant_url,
-    api_key=settings.qdrant_api_key,
-)
-
-
+_client = None
 _initialized = False
+
+
+def get_client() -> QdrantClient:
+    global _client
+
+    if _client is None:
+        _client = QdrantClient(
+            url=settings.qdrant_url,
+            api_key=settings.qdrant_api_key,
+            check_compatibility=False,
+        )
+
+    return _client
 
 
 def _ensure_collection():
@@ -28,6 +36,8 @@ def _ensure_collection():
 
     if _initialized:
         return
+
+    client = get_client()
 
     collections = client.get_collections()
 
@@ -69,6 +79,8 @@ def add_documents(
 ):
     _ensure_collection()
 
+    client = get_client()
+
     points = []
 
     for id_, text, embedding, metadata in zip(
@@ -100,6 +112,8 @@ def search_documents(
     company_id: int | None = None,
 ):
     _ensure_collection()
+
+    client = get_client()
 
     query_filter = None
 
@@ -155,6 +169,8 @@ def delete_document(
     document_id: int,
 ):
     _ensure_collection()
+
+    client = get_client()
 
     client.delete(
         collection_name=COLLECTION_NAME,
