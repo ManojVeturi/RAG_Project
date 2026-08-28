@@ -26,7 +26,7 @@ router = APIRouter(
 )
 
 
-UPLOAD_DIR = "uploads"
+UPLOAD_DIR = "/var/data/uploads"
 
 ALLOWED_EXTENSIONS = {
     ".pdf",
