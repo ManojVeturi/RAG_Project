@@ -1,3 +1,5 @@
+import uuid
+
 from app.rag.chroma import add_documents
 from app.rag.chunker import chunk_pages
 from app.services.embedding_service import generate_embeddings
@@ -30,10 +32,10 @@ def ingest_document(
     # 4. Generate embeddings
     embeddings = generate_embeddings(texts)
 
-    # 5. Create unique ChromaDB IDs
+    # 5. Create unique Qdrant point IDs
     ids = [
-        f"document_{document_id}_chunk_{index}"
-        for index in range(len(chunks))
+        str(uuid.uuid4())
+        for _ in chunks
     ]
 
     # 6. Create metadata
@@ -48,7 +50,7 @@ def ingest_document(
         for chunk in chunks
     ]
 
-    # 7. Store in ChromaDB
+    # 7. Store in Qdrant
     add_documents(
         ids=ids,
         texts=texts,
