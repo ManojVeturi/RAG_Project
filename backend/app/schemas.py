@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from datetime import datetime
 
 
@@ -7,6 +7,23 @@ class UserRegister(BaseModel):
     company_code: str
     email: EmailStr
     password: str
+
+
+class OrganizationCreate(BaseModel):
+    company_name: str = Field(
+        min_length=2,
+        max_length=255,
+    )
+    name: str = Field(
+        min_length=2,
+        max_length=255,
+    )
+    email: EmailStr
+    password: str = Field(
+        min_length=8,
+        max_length=72,
+    )
+
 
 class AdminUserCreate(BaseModel):
     name: str
@@ -29,6 +46,11 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+
+class OrganizationCreateResponse(BaseModel):
+    user: UserResponse
+    registration_code: str
 
 
 class Token(BaseModel):

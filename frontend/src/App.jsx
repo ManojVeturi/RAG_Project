@@ -12,6 +12,7 @@ import AppLayout from "./components/AppLayout";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CreateOrganization from "./pages/CreateOrganization";
 import Dashboard from "./pages/Dashboard";
 import Chat from "./pages/Chat";
 import History from "./pages/History";
@@ -39,6 +40,11 @@ export default function App() {
           <Route
             path="/register"
             element={<Register />}
+          />
+
+          <Route
+            path="/create-organization"
+            element={<CreateOrganization />}
           />
 
 

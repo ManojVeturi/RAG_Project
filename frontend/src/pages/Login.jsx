@@ -175,6 +175,15 @@ export default function Login() {
                     Create account
                     </Link>
                 </p>
+                <p className="mt-3 text-sm text-slate-500">
+                    Need a workspace?{" "}
+                    <Link
+                    to="/create-organization"
+                    className="font-medium text-blue-600 hover:text-blue-700"
+                    >
+                    Create an organization
+                    </Link>
+                </p>
             </div>
         </div>
 
